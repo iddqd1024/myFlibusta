@@ -29,6 +29,7 @@ public class HtmlParser {
 	// search values returned by html downloader/parser
 	public static class SearchResults {
 		public Map<Integer, ArrayList<String>> results = new HashMap<Integer, ArrayList<String>>();
+		
 	}
 
 	public SearchResults parse(InputStream stream) {		
