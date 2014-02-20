@@ -3,12 +3,13 @@ package ru.udovikhin.myflibusta;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
 
 import android.annotation.TargetApi;
 import android.app.ExpandableListActivity;
@@ -94,14 +95,14 @@ public class ResultsActivity extends ExpandableListActivity {
             	Log.i("myflibusta", "DOWNLOAD URL is " + url);
             		
             	InputStream stream = downloadUrl(url);
-                return new HtmlParser().parse(stream);
+                return new HtmlParser(ResultsActivity.this).parse(stream);
                 
             } catch (IOException e) {
             	HtmlParser.SearchResults result = new HtmlParser.SearchResults();
-            	ArrayList<String> strs = new ArrayList<String>();
-            	strs.add(e.toString());
+            	ArrayList<SearchResults.ChildData> strs = new ArrayList<SearchResults.ChildData>();
+            	strs.add(new SearchResults.ChildData(e.toString(), null));
             	
-            	result.results.put(R.string.connection_error, strs);
+            	result.results.put(getString(R.string.connection_error), strs);
                 return result;
             }
         }
@@ -113,12 +114,12 @@ public class ResultsActivity extends ExpandableListActivity {
             	new ArrayList<ArrayList<Map<String, String>>>();
             
             String groupAttrName = "categoryName";
-            String childAttrName = "itemName";
+            String childText = "childText";
+            String childLink = "childLink";
             
             // translate parsing results into adapter data
-            for (Map.Entry<Integer, ArrayList<String>> entry : result.results.entrySet()) {
-            	Integer key = entry.getKey();
-            	String groupName = getResources().getString(key);
+            for (Map.Entry<String, ArrayList<SearchResults.ChildData>> entry : result.results.entrySet()) {
+            	String groupName = entry.getKey();
             	
             	// add group
             	Map<String, String> m = new HashMap<String, String>();
@@ -127,9 +128,10 @@ public class ResultsActivity extends ExpandableListActivity {
             	
             	// add children
             	ArrayList<Map<String, String>> childItemData = new ArrayList<Map<String, String>>();
-            	for( String value : entry.getValue() ) {
+            	for( SearchResults.ChildData value : entry.getValue() ) {
             		Map<String, String> m2 = new HashMap<String, String>();
-            		m2.put(childAttrName, value);
+            		m2.put(childText, value.text);
+            		m2.put(childLink, value.url);
             		childItemData.add(m2);
             	}
             	childData.add(childItemData);
@@ -138,7 +140,7 @@ public class ResultsActivity extends ExpandableListActivity {
             String groupFrom[] = new String[] {groupAttrName};
             int groupTo[] = new int[] {android.R.id.text1};
             
-            String childFrom[] = new String[] {childAttrName};
+            String childFrom[] = new String[] {childText};
             int childTo[] = new int[] {android.R.id.text1};
 
             SimpleExpandableListAdapter adapter = new SimpleExpandableListAdapter(

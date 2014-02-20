@@ -10,6 +10,7 @@ import java.util.Map;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
+import android.content.Context;
 import android.util.Log;
 
 
@@ -18,17 +19,32 @@ public class HtmlParser {
 	private static final String ATTR_LOOKUP_NAME = "href";
 	private static final String ATTR_ID_NAME = "id";
 	private static final String ATTR_PARENT_ID_VALUE = "main";
-	private static final Map<String, Integer> LINK_PREFIX_TO_NAME_IDX = 
-			new HashMap<String, Integer>() {{
-				put("/a/", R.string.author_section_name);
-				put("/b/", R.string.book_section_name);
-				put("/sequence/", R.string.serial_section_name);
-				put("/s/", R.string.serial_section_name);
-			}};
+	private Map<String, String> linkPrefixToName; 
+	private Context context;
+			
+	public HtmlParser(Context ctx) {
+		context = ctx;
+		linkPrefixToName = new HashMap<String, String>() {{
+			put("/a/", context.getString(R.string.author_section_name));
+			put("/b/", context.getString(R.string.book_section_name));
+			put("/sequence/", context.getString(R.string.serial_section_name));
+			put("/s/", context.getString(R.string.serial_section_name));
+		}};
+
+	}
 					
 	// search values returned by html downloader/parser
 	public static class SearchResults {
-		public Map<Integer, ArrayList<String>> results = new HashMap<Integer, ArrayList<String>>();
+		public static class ChildData {
+			String text;
+			String url;
+			public ChildData(String t, String u) {
+				text = t;
+				url = u;
+			}
+		}
+		
+		public Map<String, ArrayList<ChildData>> results = new HashMap<String, ArrayList<ChildData>>();
 		
 	}
 
@@ -67,20 +83,21 @@ public class HtmlParser {
 		    	
 		    	
 		    	// now decide the type of the link based on its value
-		    	for( Map.Entry<String, Integer> entry : LINK_PREFIX_TO_NAME_IDX.entrySet() ) {
+		    	for( Map.Entry<String, String> entry : linkPrefixToName.entrySet() ) {
 		    		String prefix = entry.getKey();
-		    		Integer groupIdx = entry.getValue();
+		    		String groupName= entry.getValue();
 		    		
 		    		if( link.startsWith(prefix) ) {
 		    			// add this node to appropriate section
-		    			ArrayList<String> vals = results.results.get(groupIdx);
+		    			ArrayList<SearchResults.ChildData> vals = results.results.get(groupName);
 		    			if( vals == null) {
-		    				vals = new ArrayList<String>();
-		    				results.results.put(groupIdx, vals);
+		    				vals = new ArrayList<SearchResults.ChildData>();
+		    				results.results.put(groupName, vals);
 		    			}
 		    			
-		    			String nodeText = node.getText().toString();
-		    			vals.add(nodeText);
+		    			String nodeText = child.getText().toString();
+		    			Log.i("myflibusta", "Text = " + nodeText);
+		    			vals.add(new SearchResults.ChildData(nodeText, link));
 		    		}
 		    	}
 		    }
