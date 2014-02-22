@@ -31,10 +31,11 @@ public class MainResultsActivity extends ExpandableListActivity {
         // fire downloader task
         Intent intent = getIntent();
         String searchStr = intent.getStringExtra(SearchActivity.EXTRA_MESSAGE);
+        String linkStr = intent.getStringExtra(SearchActivity.EXTRA_MESSAGE2);
 
         setTitle( getString(R.string.title_activity_mainsearch_results) + " \"" + searchStr + "\"");
         
-        new PageDownloader(this, new MainSearchHtmlParser(this)).execute(searchStr);
+        new PageDownloader(this, new MainSearchHtmlParser(this)).execute(linkStr);
         
 	}
 	
@@ -77,7 +78,8 @@ public class MainResultsActivity extends ExpandableListActivity {
         case SEQUENCE:
         	// open up next activity with sequence search results
         	Intent intent = new Intent(this, SequenceResultsActivity.class);
-        	//intent.putExtra(EXTRA_MESSAGE, message);
+        	intent.putExtra(SearchActivity.EXTRA_MESSAGE, item.get("childText"));
+        	intent.putExtra(SearchActivity.EXTRA_MESSAGE2, item.get("childLink"));
             startActivity(intent);
        	
         	break;
@@ -89,7 +91,7 @@ public class MainResultsActivity extends ExpandableListActivity {
                 .setNegativeButton("No", dialogClickListener).show();
             break;
         default:
-        	Log.e("myflibusta", "Unsupported item type specified: " + itemType.name());
+        	Log.e(SearchActivity.TAG, "Unsupported item type specified: " + itemType.name());
         	return false;
         }
                 

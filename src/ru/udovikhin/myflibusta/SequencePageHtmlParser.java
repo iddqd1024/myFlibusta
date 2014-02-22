@@ -3,22 +3,28 @@ package ru.udovikhin.myflibusta;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 
 import android.content.Context;
 import android.util.Log;
 
-public class MainSearchHtmlParser extends HtmlParser {
+public class SequencePageHtmlParser extends HtmlParser {
 	
-	public MainSearchHtmlParser(Context ctx) {
+	String sequenceStr;
+	
+	public SequencePageHtmlParser(Context ctx, String seqStr) {
 		super(ctx);
+		sequenceStr = seqStr;
 	}
-	
+
+
+	@Override
 	public SearchResults parse(InputStream stream) {
+
 		HtmlCleaner pageParser = new HtmlCleaner();
 		
 		SearchResults results = new SearchResults();
@@ -27,38 +33,35 @@ public class MainSearchHtmlParser extends HtmlParser {
 			TagNode rootNode = pageParser.clean(stream);
 			if( stream != null )
 				stream.close();
-		    TagNode linkElements[] = rootNode.getElementsByName("li", true);
+			
+			// use Xpath syntax to find all nodes with name a 
+			// with attr href having div with attr class=title as parent
+			String xpathExpr = "//div[@id='main']//a[@href]";
+			
+			Log.i(SearchActivity.TAG, xpathExpr);
+			
+		    Object linkElements[] = rootNode.evaluateXPath(xpathExpr);
 		    
-		    for( TagNode node : linkElements ) {
+		    for( Object obj : linkElements ) {
 		    	
-		    	// list item should have parent with id = main
-		    	if( node.getParent() == null )
-		    		continue;
-		    	String parentAttrVal = node.getParent().getAttributeByName(ATTR_ID_NAME); 
-		    	if( parentAttrVal == null || !parentAttrVal.equals(ATTR_PARENT_ID_VALUE) )
-		    		continue;
-
-		    	// first child of list item with href attr - the node we are searching for
-		    	List<TagNode> children = node.getChildTagList();
+		    	TagNode node = (TagNode)obj;
 		    	
-		    	if( children.size() < 1)
-		    		continue;
+		    	String link = node.getAttributeByName(ATTR_LOOKUP_NAME);
 		    	
-		    	TagNode child = children.get(0);
-		    	
-		    	// query the expected href attr
-		    	String link = child.getAttributeByName(ATTR_LOOKUP_NAME);
-
-		    	// skip if child has no such attr
-		    	if( link == null )
-		    		continue;
-		    	
-		    	
+		    	//printNodePath(node);
 		    	// now decide the type of the link based on its value
 		    	for( Map.Entry<String, SearchResults.Type> entry : linkPrefixToType.entrySet() ) {
+		    		
+		    				    		
 		    		String regex = entry.getKey();
 		    		SearchResults.Type linkType = entry.getValue();
-		    		String groupName= linkTypeToSectionName.get(linkType);
+
+		    		// we are interested in books only on this kind of search
+		    		if( linkType != SearchResults.Type.BOOK )
+		    			continue;
+		    		
+		    		// group name is always a sequence str
+		    		String groupName = sequenceStr;
 		    		
 		    		if( link.matches(regex) ) {
 		    			// add this node to appropriate section
@@ -68,17 +71,19 @@ public class MainSearchHtmlParser extends HtmlParser {
 		    				results.results.put(groupName, vals);
 		    			}
 		    			
-		    			String nodeText = child.getText().toString();
+		    			String nodeText = node.getText().toString();
 		    			Log.i(SearchActivity.TAG, "Text = " + nodeText);
 		    			vals.add(new SearchResults.ChildData(nodeText, link, linkType));
 		    		}
 		    	}
 		    }
-		} catch (IOException e) {
+		} catch (XPatherException e) {
+			Log.e(SearchActivity.TAG, e.getMessage());
+		}
+		catch (IOException e) {
 			Log.e(SearchActivity.TAG, e.getMessage());
 		}
 		
 		return results;
 	}
-
 }

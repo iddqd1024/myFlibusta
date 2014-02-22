@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +17,6 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.Toast;
 
 public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchResults> {
-	private static final String HTTP_DOWNLOAD_ADDRESS = "http://flibusta.net";
-	private static final String HTTP_SEARCH_SUFFIX = "/booksearch?ask=";
 
 	Context context;
 	HtmlParser parser;
@@ -30,16 +27,13 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
 	}
 	
     @Override
-    protected HtmlParser.SearchResults doInBackground(String... searchStrs) {
+    protected HtmlParser.SearchResults doInBackground(String... urls) {
     	
     	
-        try {
-        	String encodedSearchStr = URLEncoder.encode(searchStrs[0], "UTF-8");
-        	String url = HTTP_DOWNLOAD_ADDRESS + HTTP_SEARCH_SUFFIX + encodedSearchStr;
-        	
-        	Log.i("myflibusta", "DOWNLOAD URL is " + url);
+        try {        	
+        	Log.i(SearchActivity.TAG, "DOWNLOAD URL is " + urls[0]);
         		
-        	InputStream stream = downloadUrl(url);
+        	InputStream stream = downloadUrl(urls[0]);
             return parser.parse(stream);
             
         } catch (IOException e) {

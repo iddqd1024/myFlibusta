@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.htmlcleaner.TagNode;
+
 import android.content.Context;
+import android.util.Log;
 
 
 
@@ -21,10 +24,10 @@ abstract public class HtmlParser {
 	public HtmlParser(Context ctx) {
 		context = ctx;
 		linkPrefixToType = new HashMap<String, SearchResults.Type>() {{
-			put("/a/", SearchResults.Type.AUTHOR);
-			put("/b/", SearchResults.Type.BOOK);
-			put("/sequence/", SearchResults.Type.SEQUENCE);
-			put("/s/", SearchResults.Type.SEQUENCE);
+			put("/a/\\d+", SearchResults.Type.AUTHOR);
+			put("/b/\\d+", SearchResults.Type.BOOK);
+			put("/sequence/\\d+", SearchResults.Type.SEQUENCE);
+			put("/s/\\d+", SearchResults.Type.SEQUENCE);
 		}};
 		
 		
@@ -56,4 +59,27 @@ abstract public class HtmlParser {
 	}
 
 	abstract public SearchResults parse(InputStream stream);
+	
+	protected void printNodePath(TagNode node) {
+		
+		String str = new String();
+		
+		str += node.getText() + " : ";
+		do {
+			str += node.getName();
+			
+			Map<String, String> attrs = node.getAttributes();
+			for( Map.Entry<String, String> entry : attrs.entrySet() ) {
+				
+					str += "[" + entry.getKey() + ", " + entry.getValue() + "]";
+			}
+			
+			node = node.getParent();
+			
+		} while( node != null );
+		
+		Log.i(SearchActivity.TAG, str);
+		
+		
+	}
 }

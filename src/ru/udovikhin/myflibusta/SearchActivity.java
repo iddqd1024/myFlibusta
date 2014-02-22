@@ -1,5 +1,8 @@
 package ru.udovikhin.myflibusta;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +16,12 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class SearchActivity extends Activity {
 	public final static String EXTRA_MESSAGE = "ru.udovikhin.myflibusta.MESSAGE";
-    private static final String TAG = "ru.udovikhin.myflibusta";
+	public final static String EXTRA_MESSAGE2 = "ru.udovikhin.myflibusta.MESSAGE2";
+    public static final String TAG = "ru.udovikhin.myflibusta";
+    
+	public static final String HTTP_DOWNLOAD_ADDRESS = "http://flibusta.net";
+	public static final String HTTP_SEARCH_SUFFIX = "/booksearch?ask=";
+
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +50,16 @@ public class SearchActivity extends Activity {
     	Intent intent = new Intent(this, MainResultsActivity.class);
     	EditText editText = (EditText) findViewById(R.id.search_message);
     	String message = editText.getText().toString();
-    	intent.putExtra(EXTRA_MESSAGE, message);
+    	
+    	// encode search str and make address for download
+    	try {
+    		String encodedSearchStr = URLEncoder.encode(message, "UTF-8");
+        	String url = HTTP_DOWNLOAD_ADDRESS + HTTP_SEARCH_SUFFIX + encodedSearchStr;
+        	intent.putExtra(EXTRA_MESSAGE, message);
+        	intent.putExtra(EXTRA_MESSAGE2, url);
+    	} catch(UnsupportedEncodingException ex) {
+    		Log.e(SearchActivity.TAG, ex.toString());
+    	}
         startActivity(intent);
     }
     

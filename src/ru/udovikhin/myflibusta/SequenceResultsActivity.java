@@ -2,8 +2,10 @@ package ru.udovikhin.myflibusta;
 
 import android.annotation.TargetApi;
 import android.app.ExpandableListActivity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class SequenceResultsActivity extends ExpandableListActivity {
 
@@ -12,6 +14,19 @@ public class SequenceResultsActivity extends ExpandableListActivity {
 		super.onCreate(savedInstanceState);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		
+        // fire downloader task
+        Intent intent = getIntent();
+        String sequenceStr = intent.getStringExtra(SearchActivity.EXTRA_MESSAGE);
+        String linkStr = intent.getStringExtra(SearchActivity.EXTRA_MESSAGE2);
+        
+        setTitle( getString(R.string.title_activity_sequence_results) + " \"" + sequenceStr + "\"");
+        
+        String fullLink = SearchActivity.HTTP_DOWNLOAD_ADDRESS + linkStr;
+        
+        //Toast.makeText(this, "Downloading " + fullLink, Toast.LENGTH_LONG).show();
+        
+        new PageDownloader(this, new SequencePageHtmlParser(this, sequenceStr)).execute(fullLink);
 	}
 
 	/**
