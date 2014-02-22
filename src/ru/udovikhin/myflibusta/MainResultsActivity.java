@@ -74,13 +74,17 @@ public class MainResultsActivity extends ExpandableListActivity {
         switch(itemType) {
         case AUTHOR:
         	// open up next activity with author search result
-        	break;
+        	Intent intentA = new Intent(this, AuthorResultsActivity.class);
+        	intentA.putExtra(SearchActivity.EXTRA_MESSAGE, item.get("childText"));
+        	intentA.putExtra(SearchActivity.EXTRA_MESSAGE2, item.get("childLink"));
+            startActivity(intentA);
+            break;
         case SEQUENCE:
         	// open up next activity with sequence search results
-        	Intent intent = new Intent(this, SequenceResultsActivity.class);
-        	intent.putExtra(SearchActivity.EXTRA_MESSAGE, item.get("childText"));
-        	intent.putExtra(SearchActivity.EXTRA_MESSAGE2, item.get("childLink"));
-            startActivity(intent);
+        	Intent intentS = new Intent(this, SequenceResultsActivity.class);
+        	intentS.putExtra(SearchActivity.EXTRA_MESSAGE, item.get("childText"));
+        	intentS.putExtra(SearchActivity.EXTRA_MESSAGE2, item.get("childLink"));
+            startActivity(intentS);
        	
         	break;
         case BOOK:

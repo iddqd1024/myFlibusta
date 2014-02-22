@@ -9,22 +9,20 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
+import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
+
 import android.content.Context;
 import android.util.Log;
 
-public class SequencePageHtmlParser extends HtmlParser {
+public class AuthorPageHtmlParser extends HtmlParser {
 	
-	String sequenceStr;
-	
-	public SequencePageHtmlParser(Context ctx, String seqStr) {
+	public AuthorPageHtmlParser(Context ctx) {
 		super(ctx);
-		sequenceStr = seqStr;
 	}
 
 
 	@Override
 	public SearchResults parse(InputStream stream) {
-
 		HtmlCleaner pageParser = new HtmlCleaner();
 		
 		SearchResults results = new SearchResults();
@@ -42,6 +40,8 @@ public class SequencePageHtmlParser extends HtmlParser {
 			
 		    Object linkElements[] = rootNode.evaluateXPath(xpathExpr);
 		    
+		    String curSeqName = "<null>";
+		    
 		    for( Object obj : linkElements ) {
 		    	
 		    	TagNode node = (TagNode)obj;
@@ -56,24 +56,29 @@ public class SequencePageHtmlParser extends HtmlParser {
 		    		String regex = entry.getKey();
 		    		SearchResults.Type linkType = entry.getValue();
 
-		    		// we are interested in books only on this kind of search
-		    		if( linkType != SearchResults.Type.BOOK )
+		    		// we are interested in books and sequences only
+		    		if( linkType != SearchResults.Type.BOOK && linkType != SearchResults.Type.SEQUENCE )
 		    			continue;
 		    		
-		    		// group name is always a sequence str
-		    		String groupName = sequenceStr;
-		    		
 		    		if( link.matches(regex) ) {
-		    			// add this node to appropriate section
-		    			ArrayList<SearchResults.ChildData> vals = results.results.get(groupName);
-		    			if( vals == null) {
-		    				vals = new ArrayList<SearchResults.ChildData>();
-		    				results.results.put(groupName, vals);
+		    			if( linkType == SearchResults.Type.SEQUENCE) {
+		    				// update current sequence name
+		    				curSeqName = node.getText().toString();
 		    			}
+		    				
+		    			if( linkType == SearchResults.Type.BOOK ) {
+		    				// add this node to appropriate section
+		    				ArrayList<SearchResults.ChildData> vals = results.results.get(curSeqName);
+		    				if( vals == null) {
+		    					vals = new ArrayList<SearchResults.ChildData>();
+		    					results.results.put(curSeqName, vals);
+		    				}
 		    			
-		    			String nodeText = node.getText().toString();
-		    			Log.i(SearchActivity.TAG, "Text = " + nodeText);
-		    			vals.add(new SearchResults.ChildData(nodeText, link, linkType));
+		    				String nodeText = node.getText().toString();
+		    				Log.i(SearchActivity.TAG, "Text = " + nodeText);
+		    				//printNodePath(node);
+		    				vals.add(new SearchResults.ChildData(nodeText, link, linkType));
+		    			}
 		    		}
 		    	}
 		    }

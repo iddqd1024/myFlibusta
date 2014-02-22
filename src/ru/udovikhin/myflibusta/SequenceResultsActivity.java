@@ -23,9 +23,7 @@ public class SequenceResultsActivity extends ExpandableListActivity {
         setTitle( getString(R.string.title_activity_sequence_results) + " \"" + sequenceStr + "\"");
         
         String fullLink = SearchActivity.HTTP_DOWNLOAD_ADDRESS + linkStr;
-        
-        //Toast.makeText(this, "Downloading " + fullLink, Toast.LENGTH_LONG).show();
-        
+                
         new PageDownloader(this, new SequencePageHtmlParser(this, sequenceStr)).execute(fullLink);
 	}
 
