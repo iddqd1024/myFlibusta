@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ru.udovikhin.myflibusta.ResultsActivity"
+            android:name="ru.udovikhin.myflibusta.MainResultsActivity"
             android:label="@string/title_activity_results"
             android:parentActivityName="ru.udovikhin.myflibusta.SearchActivity" >
             <meta-data

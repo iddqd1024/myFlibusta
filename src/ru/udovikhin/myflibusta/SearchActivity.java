@@ -34,7 +34,7 @@ public class SearchActivity extends Activity {
 	
     public void startSearch(View view) {
         // Do something in response to button
-    	Intent intent = new Intent(this, ResultsActivity.class);
+    	Intent intent = new Intent(this, MainResultsActivity.class);
     	EditText editText = (EditText) findViewById(R.id.search_message);
     	String message = editText.getText().toString();
     	intent.putExtra(EXTRA_MESSAGE, message);
