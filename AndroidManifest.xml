@@ -7,9 +7,9 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
-    
+
     <uses-permission android:name="android.permission.INTERNET" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -17,7 +17,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="ru.udovikhin.myflibusta.SearchActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,11 +27,30 @@
         </activity>
         <activity
             android:name="ru.udovikhin.myflibusta.MainResultsActivity"
-            android:label="@string/title_activity_results"
-            android:parentActivityName="ru.udovikhin.myflibusta.SearchActivity" >
+            android:label="@string/title_activity_mainsearch_results"
+            android:parentActivityName="ru.udovikhin.myflibusta.SearchActivity"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.udovikhin.myflibusta.SearchActivity" />
+        </activity>
+        <activity
+            android:name="ru.udovikhin.myflibusta.AuthorResultsActivity"
+            android:label="@string/title_activity_author_results"
+            android:parentActivityName="ru.udovikhin.myflibusta.MainResultsActivity" 
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.udovikhin.myflibusta.MainResultsActivity" />
+        </activity>
+        <activity
+            android:name="ru.udovikhin.myflibusta.SequenceResultsActivity"
+            android:label="@string/title_activity_sequence_results"
+            android:parentActivityName="ru.udovikhin.myflibusta.MainResultsActivity" 
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.udovikhin.myflibusta.MainResultsActivity" />
         </activity>
     </application>
 

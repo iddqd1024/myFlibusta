@@ -4,9 +4,12 @@
     <string name="app_name">myFlibusta</string>
     <string name="search_message">Enter search text</string>
     <string name="search_button">Search</string>
-    <string name="title_activity_results">Search results</string>
+    <string name="title_activity_mainsearch_results">Search results for</string>
     <string name="connection_error">Unable to load content. Check your network connection.</string>
     <string name="author_section_name">Authors</string>
     <string name="book_section_name">Books</string>
     <string name="serial_section_name">Serials</string>
+    <string name="title_activity_author_results">Author</string>
+    <string name="title_activity_sequence_results">Sequence</string>
+        
 </resources>

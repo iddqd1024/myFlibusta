@@ -61,6 +61,7 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
         String groupAttrName = "categoryName";
         String childText = "childText";
         String childLink = "childLink";
+        String childType = "childType";
         
         // translate parsing results into adapter data
         for (Map.Entry<String, ArrayList<SearchResults.ChildData>> entry : result.results.entrySet()) {
@@ -77,6 +78,7 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
         		Map<String, String> m2 = new HashMap<String, String>();
         		m2.put(childText, value.text);
         		m2.put(childLink, value.url);
+        		m2.put(childType, value.type.name());
         		childItemData.add(m2);
         	}
         	childData.add(childItemData);

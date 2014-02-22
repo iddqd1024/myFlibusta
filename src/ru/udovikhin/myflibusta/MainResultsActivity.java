@@ -2,6 +2,7 @@ package ru.udovikhin.myflibusta;
 
 import java.util.Map;
 
+import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -21,6 +23,7 @@ public class MainResultsActivity extends ExpandableListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+				
 		//setContentView(R.layout.activity_results);
 		// Show the Up button in the action bar.
 		setupActionBar();
@@ -28,6 +31,8 @@ public class MainResultsActivity extends ExpandableListActivity {
         // fire downloader task
         Intent intent = getIntent();
         String searchStr = intent.getStringExtra(SearchActivity.EXTRA_MESSAGE);
+
+        setTitle( getString(R.string.title_activity_mainsearch_results) + " \"" + searchStr + "\"");
         
         new PageDownloader(this, new MainSearchHtmlParser(this)).execute(searchStr);
         
@@ -45,7 +50,8 @@ public class MainResultsActivity extends ExpandableListActivity {
             switch (which){
             case DialogInterface.BUTTON_POSITIVE:
                 //Yes button clicked
-            	Toast.makeText(MainResultsActivity.this, "Downloading" + downloadItem.get("childLink"), 
+            	
+            	Toast.makeText(MainResultsActivity.this, "Downloading " + downloadItem.get("childLink"), 
             		Toast.LENGTH_LONG).show();
                 break;
 
@@ -62,13 +68,31 @@ public class MainResultsActivity extends ExpandableListActivity {
         Map<String, String> item = (Map<String, String>) 
         		getExpandableListAdapter().getChild(groupPosition, childPosition);
         
-        DownLoadClickListener dialogClickListener = new DownLoadClickListener(item);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Download " + item.get("childText") + "?").setPositiveButton("Yes", dialogClickListener)
-            .setNegativeButton("No", dialogClickListener).show();
-        
-        
-        
+        // based on the item type, decide the action required
+        SearchResults.Type itemType = SearchResults.Type.valueOf(item.get("childType"));
+        switch(itemType) {
+        case AUTHOR:
+        	// open up next activity with author search result
+        	break;
+        case SEQUENCE:
+        	// open up next activity with sequence search results
+        	Intent intent = new Intent(this, SequenceResultsActivity.class);
+        	//intent.putExtra(EXTRA_MESSAGE, message);
+            startActivity(intent);
+       	
+        	break;
+        case BOOK:
+        	// query book download
+            DownLoadClickListener dialogClickListener = new DownLoadClickListener(item);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Download " + item.get("childText") + "?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+            break;
+        default:
+        	Log.e("myflibusta", "Unsupported item type specified: " + itemType.name());
+        	return false;
+        }
+                
         return true;
     }
     
