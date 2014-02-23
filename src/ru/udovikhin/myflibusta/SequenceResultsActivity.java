@@ -5,7 +5,6 @@ import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class SequenceResultsActivity extends ExpandableListActivity {
 

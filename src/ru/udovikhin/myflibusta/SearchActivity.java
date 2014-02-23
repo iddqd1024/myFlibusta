@@ -21,6 +21,7 @@ public class SearchActivity extends Activity {
     
 	public static final String HTTP_DOWNLOAD_ADDRESS = "http://flibusta.net";
 	public static final String HTTP_SEARCH_SUFFIX = "/booksearch?ask=";
+	public static final String HTTP_DOWNLOAD_SUFFIX = "/download/fb2";
 
     
 	@Override

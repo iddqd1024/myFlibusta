@@ -9,8 +9,6 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
-import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
-
 import android.content.Context;
 import android.util.Log;
 

@@ -29,11 +29,13 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
     @Override
     protected HtmlParser.SearchResults doInBackground(String... urls) {
     	
-    	
+    	HttpURLConnection conn = null;
+    	InputStream stream = null;
         try {        	
         	Log.i(SearchActivity.TAG, "DOWNLOAD URL is " + urls[0]);
         		
-        	InputStream stream = downloadUrl(urls[0]);
+        	conn = downloadUrl(urls[0]);
+        	stream = conn.getInputStream();
             return parser.parse(stream);
             
         } catch (IOException e) {
@@ -43,6 +45,15 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
         	
         	result.results.put(context.getString(R.string.connection_error), strs);
             return result;
+        } finally {
+        	try { 
+        		if( stream != null )
+        			stream.close();
+        	} catch( IOException e) {}
+        	
+
+        	if( conn != null )
+        		conn.disconnect();
         }
     }
 
@@ -103,7 +114,7 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
 
     // Given a string representation of a URL, sets up a connection and gets
     // an input stream.
-    private InputStream downloadUrl(String urlString) throws IOException {
+    public static HttpURLConnection downloadUrl(String urlString) throws IOException {
     	URL url = new URL(urlString);
     	HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     	conn.setReadTimeout(10000 /* milliseconds */);
@@ -112,7 +123,6 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
     	conn.setDoInput(true);
     	// Starts the query
     	conn.connect();
-    	InputStream stream = conn.getInputStream();
-    	return stream;
+    	return conn;
     }	
 }

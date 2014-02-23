@@ -4,9 +4,7 @@ import java.util.Map;
 
 import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.ExpandableListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 public class MainResultsActivity extends ExpandableListActivity {
 	
@@ -38,31 +35,7 @@ public class MainResultsActivity extends ExpandableListActivity {
         new PageDownloader(this, new MainSearchHtmlParser(this)).execute(linkStr);
         
 	}
-	
-	public class DownLoadClickListener implements DialogInterface.OnClickListener {
-		private Map<String, String> downloadItem;
 		
-		public DownLoadClickListener(Map<String, String> item) {
-			downloadItem = item;
-		}
-		
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-            case DialogInterface.BUTTON_POSITIVE:
-                //Yes button clicked
-            	
-            	Toast.makeText(MainResultsActivity.this, "Downloading " + downloadItem.get("childLink"), 
-            		Toast.LENGTH_LONG).show();
-                break;
-
-            case DialogInterface.BUTTON_NEGATIVE:
-                //No button clicked
-                break;
-            }
-        }
-	}
-	
     @Override
     public boolean onChildClick(ExpandableListView l, View v, int groupPosition, int childPosition, long id) {
         @SuppressWarnings("unchecked")
@@ -88,12 +61,13 @@ public class MainResultsActivity extends ExpandableListActivity {
        	
         	break;
         case BOOK:
-        	// query book download
-            DownLoadClickListener dialogClickListener = new DownLoadClickListener(item);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Download " + item.get("childText") + "?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
+        	// run FileDownloader
+        	new FileDownloadInitiator(this, item.get("childText"), item.get("childLink")).initiateFileDownload();
+        	
             break;
+        case OTHER:
+        	// do nothing
+        	break;
         default:
         	Log.e(SearchActivity.TAG, "Unsupported item type specified: " + itemType.name());
         	return false;
