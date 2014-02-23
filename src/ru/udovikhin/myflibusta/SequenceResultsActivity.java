@@ -1,10 +1,16 @@
 package ru.udovikhin.myflibusta;
 
+import java.util.Map;
+
+import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
 import android.annotation.TargetApi;
 import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ExpandableListView;
 
 public class SequenceResultsActivity extends ExpandableListActivity {
 
@@ -25,6 +31,31 @@ public class SequenceResultsActivity extends ExpandableListActivity {
                 
         new PageDownloader(this, new SequencePageHtmlParser(this, sequenceStr)).execute(fullLink);
 	}
+	
+    @Override
+    public boolean onChildClick(ExpandableListView l, View v, int groupPosition, int childPosition, long id) {
+        @SuppressWarnings("unchecked")
+        Map<String, String> item = (Map<String, String>) 
+        		getExpandableListAdapter().getChild(groupPosition, childPosition);
+        
+        // based on the item type, decide the action required
+        SearchResults.Type itemType = SearchResults.Type.valueOf(item.get("childType"));
+        switch(itemType) {
+        case BOOK:
+        	// run FileDownloader
+        	new FileDownloadInitiator(this, item.get("childText"), item.get("childLink")).initiateFileDownload();
+        	
+            break;
+        case OTHER:
+        	// do nothing
+        	break;
+        default:
+        	Log.e(SearchActivity.TAG, "Unsupported item type specified: " + itemType.name());
+        	return false;
+        }
+                
+        return true;
+    }
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.

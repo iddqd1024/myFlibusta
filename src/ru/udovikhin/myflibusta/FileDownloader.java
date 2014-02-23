@@ -9,21 +9,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
-
-import ru.udovikhin.myflibusta.HtmlParser.SearchResults;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -131,20 +128,17 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	// always use authors
     	String bookPath = Environment.getExternalStorageDirectory() 
     			+ BOOK_DOWNLOAD_LOCATION;
-    	bookPath += attrs.authorF + " " + attrs.authorL;
+    	bookPath += attrs.authorString();
     	
-    	if( attrs.sequence != null || attrs.sequenceNum != null) {
+    	if( attrs.sequences.size() != 0 ) {
     		bookPath += "/";
-    		if( attrs.sequenceNum != null)
-    			bookPath += attrs.sequenceNum + ". ";
-    		if( attrs.sequence!= null)
-    			bookPath += attrs.sequence;
+    		bookPath += attrs.sequenceNameString();
     	}
     	
     	File dir = new File(bookPath);
     	dir.mkdirs();
     	
-    	String newFileName = attrs.title + ".fb2.zip";
+    	String newFileName = attrs.sequenceNumString() + attrs.titleString() + ".fb2.zip";
     	
     	// now move file under the created directory
     	File file = new File(fileName);
@@ -156,10 +150,19 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	return null;
     }
     
-    private class BookAttributes {
-    	String title = null;
-    	String authorF = null;
-    	String authorL = null;
+    public class BookAttributes {
+    	public class Author {
+    		String firstName = null;
+    		String lastName = null;
+    	}
+    	public class Sequence {
+    		String name = null;
+    		String num = null;
+    	}
+    	
+    	ArrayList<String> titles = new ArrayList<String>();
+    	ArrayList<Author> authors = new ArrayList<Author>();
+    	ArrayList<Sequence> sequences = new ArrayList<Sequence>();
     	String sequence = null;
     	String sequenceNum = null;
     	
@@ -172,11 +175,50 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	public String toString() {
     		String result = "";
     		
-    		result += "title: " + safeStr(title);
-    		result += " author: " + safeStr(authorF) + " " + safeStr(authorL);
-    		result += " sequence: " + safeStr(sequenceNum) + " " + safeStr(sequence);
+    		for( String title : titles ) {
+    			result += "title: \"" + safeStr(title) + "\"";
+    		}
+    		
+    		for( Author author : authors ) {
+    			result += " author: " + safeStr(author.firstName) + " " + safeStr(author.lastName);
+    		}
+    		for( Sequence seq : sequences ) {
+    			result += " sequence: " + safeStr(seq.name) + " " + safeStr(seq.num);
+    		}
     		return result;
-    	}  
+    	} 
+    	
+    	public String authorString() {
+    		ArrayList<String> names = new ArrayList<String>();
+    		for( Author author : authors ) {
+    			names.add(safeStr(author.firstName) + " " + safeStr(author.lastName));
+    		}
+
+    		return TextUtils.join(", ", names);
+    	}
+    	
+    	public String titleString() {
+    		return TextUtils.join(", ", titles);
+    	}
+    	
+    	public String sequenceNameString() {
+    		ArrayList<String> names = new ArrayList<String>();
+    		for( Sequence seq : sequences ) {
+    			names.add(safeStr(seq.name));
+    		}
+
+    		return TextUtils.join(", ", names);
+    	}
+    	
+    	public String sequenceNumString() {
+    		ArrayList<String> nums = new ArrayList<String>();
+    		for( Sequence seq : sequences ) {
+    			nums.add(safeStr(seq.num) + ".");
+    		}
+
+    		return TextUtils.join(" ", nums);
+    	}
+
     }
     	
     private BookAttributes extractBookAttibutes(String fileName) {
@@ -213,57 +255,67 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
         }
     	return attrs;
     }
-    
+            
     private BookAttributes extractBookAttributesFromStream(InputStream stream) {
     	
     	Log.i(SearchActivity.TAG, "Parsing book attributes from stream...");
     	
     	BookAttributes attrs = new BookAttributes();
-		HtmlCleaner pageParser = new HtmlCleaner();
-		
-		SearchResults results = new SearchResults();
-		
-		try {
-			TagNode rootNode = pageParser.clean(stream);
-			if( stream != null )
-				stream.close();
-			
-			String xpathExpr = "//description//title-info//author//first-name";
-			Object linkElements[] = rootNode.evaluateXPath(xpathExpr);
-			if( linkElements.length == 1) {
-				TagNode node = (TagNode)linkElements[0];
-				attrs.authorF = node.getText().toString();
-			}
-			xpathExpr = "//description//title-info//author//last-name";
-			linkElements = rootNode.evaluateXPath(xpathExpr);
-			if( linkElements.length == 1) {
-				TagNode node = (TagNode)linkElements[0];
-				attrs.authorL = node.getText().toString();
-			}
-			xpathExpr = "//description//title-info//book-title";
-			linkElements = rootNode.evaluateXPath(xpathExpr);
-			if( linkElements.length == 1) {
-				TagNode node = (TagNode)linkElements[0];
-				attrs.title = node.getText().toString();
-			}
-			xpathExpr = "//description//title-info//sequence";
-			linkElements = rootNode.evaluateXPath(xpathExpr);
-			if( linkElements.length == 1) {
-				TagNode node = (TagNode)linkElements[0];
-				
-				attrs.sequence = node.getAttributeByName("name");
-				attrs.sequenceNum = node.getAttributeByName("number");
-			}
-		} catch (XPatherException e) {
-			Log.e(SearchActivity.TAG, e.getMessage());
-		}
-		catch (IOException e) {
-			Log.e(SearchActivity.TAG, e.getMessage());
-		}
+    	
+    	try {
+    		XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
+    		XmlPullParser parser = xmlFactoryObject.newPullParser();
+
+    		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+    		parser.setInput(stream, null);
+    		    		
+            int event = parser.getEventType();
+            String lastText = null;
+            boolean parsingAuthor = false;
+            while (event != XmlPullParser.END_DOCUMENT) {
+               String name=parser.getName();
+               Log.i(SearchActivity.TAG, "Tag name: " + name + " event: " + event);
+               switch (event){
+                  case XmlPullParser.START_TAG:
+                	  if( name.equals("author")) {
+                		  // allocate new author struct
+                		  attrs.authors.add(attrs.new Author());
+                		  parsingAuthor = true;
+                	  } else if( name.equals("sequence") ) {
+                		 // get attributes
+                		 BookAttributes.Sequence seq = attrs.new Sequence();
+                		 attrs.sequences.add(seq);
+                		 seq.name = parser.getAttributeValue(null, "name");
+                		 seq.num = parser.getAttributeValue(null, "number");
+                	  }   
+                	  break;
+                  case XmlPullParser.TEXT:
+                	  lastText = parser.getText();
+                	  break;
+
+                  case XmlPullParser.END_TAG:
+                	  if( name.equals("first-name") && parsingAuthor )
+                		  attrs.authors.get(attrs.authors.size()-1).firstName = lastText;
+                	  else if( name.equals("last-name") && parsingAuthor )
+                		  attrs.authors.get(attrs.authors.size()-1).lastName = lastText;
+                	  else if( name.equals("book-title"))
+                		  attrs.titles.add(lastText);
+                	  else if( name.equals("author"))
+                		  parsingAuthor = false;
+                	  else if( name.equals("title-info"))
+                		  // stop parsing prematurely
+                		  return attrs;
+                	  break;
+               }
+               event = parser.next(); 
+            }
+    	} catch( Exception e ) {
+    		Log.e(SearchActivity.TAG, e.toString());
+    	}
 		
 		return attrs;
     }
-        
+    
     @Override
     protected void onPostExecute(String result) {
     	// notify user download is done

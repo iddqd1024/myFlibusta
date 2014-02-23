@@ -60,7 +60,7 @@ abstract public class HtmlParser {
 
 	abstract public SearchResults parse(InputStream stream);
 	
-	protected void printNodePath(TagNode node) {
+	public void printNodePath(TagNode node) {
 		
 		String str = new String();
 		
