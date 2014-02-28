@@ -14,7 +14,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.SimpleExpandableListAdapter;
-import android.widget.Toast;
 
 public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchResults> {
 
@@ -108,8 +107,7 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
         ExpandableListActivity activity = (ExpandableListActivity)context;
         activity.setListAdapter(adapter);
         
-        Toast.makeText(context, "Search is done", Toast.LENGTH_LONG).show();
-
+        SearchActivity.showMsg(context, "Search is done.");
     }
 
     // Given a string representation of a URL, sets up a connection and gets

@@ -22,7 +22,6 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 public class FileDownloader extends AsyncTask<String, Void, String> {
 	
@@ -168,7 +167,7 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	
     	private String safeStr(String str) {
     		if( str == null)
-    			return "<null>";
+    			return "null";
     		return str;
     	}
     	
@@ -213,7 +212,8 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	public String sequenceNumString() {
     		ArrayList<String> nums = new ArrayList<String>();
     		for( Sequence seq : sequences ) {
-    			nums.add(safeStr(seq.num) + ".");
+    			if( seq.num != null)
+    				nums.add(safeStr(seq.num) + ".");
     		}
 
     		return TextUtils.join(" ", nums);
@@ -327,7 +327,7 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
 
     	Log.i(SearchActivity.TAG, "Download of \"" + bookName + "\" is finished");
     	
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+    	SearchActivity.showMsg(context, msg);
     }
 
 }

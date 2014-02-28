@@ -28,9 +28,7 @@ public class AuthorResultsActivity extends ExpandableListActivity {
         setTitle( getString(R.string.title_activity_author_results) + " \"" + authorStr + "\"");
         
         String fullLink = SearchActivity.HTTP_DOWNLOAD_ADDRESS + linkStr;
-        
-        //Toast.makeText(this, "Downloading " + fullLink, Toast.LENGTH_LONG).show();
-        
+                
         new PageDownloader(this, new AuthorPageHtmlParser(this)).execute(fullLink);
 
 	}
