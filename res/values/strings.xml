@@ -11,5 +11,10 @@
     <string name="serial_section_name">Serials</string>
     <string name="title_activity_author_results">Author</string>
     <string name="title_activity_sequence_results">Sequence</string>
-        
+    <string name="book_download_success_message">Download of book \"%s\" finished successfully</string>
+    <string name="book_download_request_message">Download \"%s\"?</string>
+    <string name="book_download_request_yes">Yes</string>
+    <string name="book_download_request_no">No</string>
+    <string name="search_done_message">Search is done</string>
+    
 </resources>

@@ -321,7 +321,8 @@ public class FileDownloader extends AsyncTask<String, Void, String> {
     	// notify user download is done
     	String msg = result;
     	if( result == null )
-    		msg = "Download of \"" + bookName + "\" finished successfully";
+    	//	msg = "Download of \"" + bookName + "\" finished successfully";
+    		msg = String.format(context.getString(R.string.book_download_success_message), bookName);
     	else
     		Log.e(SearchActivity.TAG, "Book download failed with: " + result);
 

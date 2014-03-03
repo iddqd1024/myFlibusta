@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">myFlibusta</string>
+    <string name="search_message">Введите текст для поиска</string>
+    <string name="search_button">Искать</string>
+    <string name="title_activity_mainsearch_results">Результаты поиска для </string>
+    <string name="connection_error">Не могу загрузить. Проверьте настройки.</string>
+    <string name="author_section_name">Авторы</string>
+    <string name="book_section_name">Книги</string>
+    <string name="serial_section_name">Серии</string>
+    <string name="title_activity_author_results">Автор</string>
+    <string name="title_activity_sequence_results">Серия</string>
+    <string name="book_download_success_message">Скачивание книги \"%s\" завершено успешно</string>
+    <string name="book_download_request_message">Скачать \"%s\"?</string>
+    <string name="book_download_request_yes">Да</string>
+    <string name="book_download_request_no">Нет</string>
+    <string name="search_done_message">Поиск завершен</string>
+    
+</resources>

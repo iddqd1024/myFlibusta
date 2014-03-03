@@ -44,8 +44,11 @@ public class FileDownloadInitiator {
     	// ensure user wants to download this
 		FileDownloadClickListener listener = new FileDownloadClickListener();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("Download \"" + bookName + "\"?").setPositiveButton("Yes", listener)
-            .setNegativeButton("No", listener).show();
+        String msg = String.format(context.getString(R.string.book_download_request_message), bookName);
+        String yes = context.getString(R.string.book_download_request_yes);
+        String no = context.getString(R.string.book_download_request_no);
+        builder.setMessage(msg).setPositiveButton(yes, listener)
+            .setNegativeButton(no, listener).show();
 	}
 
 }

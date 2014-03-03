@@ -107,7 +107,7 @@ public class PageDownloader extends AsyncTask<String, Void, HtmlParser.SearchRes
         ExpandableListActivity activity = (ExpandableListActivity)context;
         activity.setListAdapter(adapter);
         
-        SearchActivity.showMsg(context, "Search is done.");
+        SearchActivity.showMsg(context, context.getString(R.string.search_done_message));
     }
 
     // Given a string representation of a URL, sets up a connection and gets
