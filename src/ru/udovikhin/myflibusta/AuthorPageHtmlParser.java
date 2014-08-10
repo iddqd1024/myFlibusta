@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
@@ -73,7 +74,8 @@ public class AuthorPageHtmlParser extends HtmlParser {
 		    				}
 		    			
 		    				String nodeText = node.getText().toString();
-		    				Log.i(SearchActivity.TAG, "Text = " + nodeText);
+		    		    	nodeText = StringEscapeUtils.unescapeHtml3(nodeText);
+		    		    	Log.i(SearchActivity.TAG, "Text = " + nodeText);
 		    				//printNodePath(node);
 		    				vals.add(new SearchResults.ChildData(nodeText, link, linkType));
 		    			}

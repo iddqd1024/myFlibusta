@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
@@ -44,6 +46,27 @@ public class MainSearchHtmlParser extends HtmlParser {
 		    	if( children.size() < 1)
 		    		continue;
 		    	
+		    	String nodeText = "";
+		    	
+		    	for( Object item : node.getAllChildren() ) {
+		    		if (item instanceof ContentNode) {
+		            	ContentNode child = (ContentNode) item;
+		                nodeText += child.getContent();
+		            } else if (item instanceof TagNode) {
+		            	TagNode child = (TagNode) item;
+			    		if( child.getAttributeByName(ATTR_LOOKUP_NAME) != null ) {
+			    			CharSequence subtext = child.getText();
+			    			nodeText += (subtext);
+			    		}
+		            }
+		    	}
+		    	
+		    	// get rid of EOLs at the end of the string
+		    	String lines[] = nodeText.split("\\n");
+		    	nodeText = lines[0];
+		    	
+		    	nodeText = StringEscapeUtils.unescapeHtml3(nodeText);
+		    	
 		    	TagNode child = children.get(0);
 		    	
 		    	// query the expected href attr
@@ -52,7 +75,6 @@ public class MainSearchHtmlParser extends HtmlParser {
 		    	// skip if child has no such attr
 		    	if( link == null )
 		    		continue;
-		    	
 		    	
 		    	// now decide the type of the link based on its value
 		    	for( Map.Entry<String, SearchResults.Type> entry : linkPrefixToType.entrySet() ) {
@@ -68,7 +90,7 @@ public class MainSearchHtmlParser extends HtmlParser {
 		    				results.results.put(groupName, vals);
 		    			}
 		    			
-		    			String nodeText = child.getText().toString();
+		    			// String nodeText = child.getText().toString();
 		    			Log.i(SearchActivity.TAG, "Text = " + nodeText);
 		    			vals.add(new SearchResults.ChildData(nodeText, link, linkType));
 		    		}
